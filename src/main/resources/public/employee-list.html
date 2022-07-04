@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NPHC Assignment (Search)</title>
+</head>
+<body>
+
+<h3>Search Employees</h3>
+
+<form action="/users" method="GET">
+    <table style="height:10rem">
+        <tr>
+            <td><label for="minSalary">Minimum Salary : </label></td>
+            <td><input name="minSalary" id="minSalary" type="number"></td>
+            <td><label for="maxSalary">Maximum Salary : </label></td>
+            <td><input name="maxSalary" id="maxSalary" type="number"></td>
+        </tr>
+        <tr>
+            <td><label for="offset">Offset : </label></td>
+            <td><input name="offset" id="offset" type="number"></td>
+            <td><label for="limit">Limit : </label></td>
+            <td><input name="limit" id="limit" type="number"></td>
+        </tr>
+        <tr>
+            <td><label for="sorting">Sort By : </label></td>
+            <td>
+                <select name="sorting" id="sorting">
+                <option value="id">Id</option>
+                <option value="login">Login</option>
+                <option value="name">Full Name</option>
+                <option value="salary">Salary</option>
+                <option value="startDate">Start Date</option>
+            </select>
+            </td>
+            <td>
+                <label for="desc">Is Desc</label>
+            </td>
+            <td>
+                <input type="checkbox" id="desc" name="desc">
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><button>Search Users</button></td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

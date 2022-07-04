@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NPHC Assignment (Delete)</title>
+</head>
+<body>
+
+<h3>Delete Employee Record</h3>
+
+    <table>
+        <tr>
+            <td><label for="employee-id">Employee Id : </label></td>
+            <td><input name="employee-id" id="employee-id"  required></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <button id="delete-btn">Delete Employee</button>
+            </td>
+        </tr>
+    </table>
+<h5 style="color:blue" id="message-box"></h5>
+<script>
+    function handleDeleteEmployee(id) {
+        let xhr = new XMLHttpRequest();
+        xhr.open('DELETE', '/users/' + id, true);
+        xhr.onload = function () {
+            document.getElementById('message-box').innerText = this.responseText;
+        };
+        xhr.send();
+    };
+    let btn = document.getElementById("delete-btn");
+    btn.addEventListener("click", function (event) {
+            event.preventDefault();
+            handleDeleteEmployee(document.getElementById('employee-id').value.trim());
+    });
+</script>
+</body>
+</html>

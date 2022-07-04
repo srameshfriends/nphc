@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NPHC Assignment (Put/Patch)</title>
+</head>
+<body>
+
+<h3>Modify Employee Record</h3>
+
+<form action="/users" id="employee-modify" method="POST">
+    <table style="height:10rem">
+        <tr>
+            <td><label for="id">Id : </label></td>
+            <td><input name="id" id="id" required></td>
+        </tr>
+        <tr>
+            <td><label for="login">Login : </label></td>
+            <td><input name="login" id="login"  required></td>
+        </tr>
+        <tr>
+            <td><label for="name">Name : </label></td>
+            <td><input name="name" id="name"  required></td>
+        </tr>
+        <tr>
+            <td><label for="salary">Salary : </label></td>
+            <td><input name="salary" id="salary" type="number"  required></td>
+        </tr>
+        <tr>
+            <td><label for="startDate">Start Date : </label></td>
+            <td><input name="startDate" id="startDate" type="date"  required></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <button type="submit">Update Employee</button>
+            </td>
+        </tr>
+    </table>
+</form>
+<h5 style="color:blue" id="message-box"></h5>
+<script>
+    function handleModifyEmployee(data) {
+        let xhr = new XMLHttpRequest();
+        xhr.open('PUT', '/users/' + data.id, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+            document.getElementById('message-box').innerText = this.responseText;
+        };
+        xhr.send(JSON.stringify(data));
+    };
+
+    function handleEmployeeSubmit(event) {
+            event.preventDefault();
+            const data = new FormData(event.target);
+            const value = Object.fromEntries(data.entries());
+            handleModifyEmployee(value);
+    };
+    const form = document.querySelector("form");
+    form.addEventListener("submit", handleEmployeeSubmit);
+</script>
+</body>
+</html>
