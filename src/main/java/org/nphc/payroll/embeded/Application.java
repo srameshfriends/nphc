@@ -6,6 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
+/**
+ * Application entry point to NPHC Assignment.
+ *
+ * @author Selvaraj Ramesh
+ */
 @ComponentScan(basePackages = {"org.nphc.payroll.*"})
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = {ErrorMvcAutoConfiguration.class})

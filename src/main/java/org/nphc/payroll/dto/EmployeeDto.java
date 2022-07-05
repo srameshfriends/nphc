@@ -6,61 +6,88 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.csv.CSVRecord;
-import org.nphc.payroll.repository.EmployeeJdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.JDBCType;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+/**
+ * EmployeeDto Data Transfer Object.
+ * startDate format is “yyyy-mm-dd" or “dd-mmm-yy”
+ *
+ * @author Selvaraj Ramesh
+ */
 public class EmployeeDto implements RowMapper<Employee> {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeDto.class);
     private static final DateTimeFormatter dateFormatYMD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter dateFormatDMY = DateTimeFormatter.ofPattern("dd-MMM-yy");
+
+    /**
+     *   Get sql parameter for insert employee into the database.
+     */
     public Object[] getInsertParameters(Employee employee) {
         Object[] result = new Object[5];
-        result[0] =  employee.getId();
-        result[1] =  employee.getLogin();
-        result[2] =  employee.getName();
-        result[3] =  employee.getSalary();
-        result[4] =  getDate(employee.getStartDate());
+        result[0] = employee.getId();
+        result[1] = employee.getLogin();
+        result[2] = employee.getName();
+        result[3] = employee.getSalary();
+        result[4] = getDate(employee.getStartDate());
         return result;
     }
+
+    /**
+     *   jdbc sql data type to insert employee.
+     */
     public int[] getInsertSQLType() {
         int[] result = new int[5];
-        result[0] =  JDBCType.VARCHAR.getVendorTypeNumber();
-        result[1] =  JDBCType.VARCHAR.getVendorTypeNumber();
-        result[2] =  JDBCType.VARCHAR.getVendorTypeNumber();
-        result[3] =  JDBCType.DECIMAL.getVendorTypeNumber();
-        result[4] =  JDBCType.DATE.getVendorTypeNumber();
+        result[0] = JDBCType.VARCHAR.getVendorTypeNumber();
+        result[1] = JDBCType.VARCHAR.getVendorTypeNumber();
+        result[2] = JDBCType.VARCHAR.getVendorTypeNumber();
+        result[3] = JDBCType.DECIMAL.getVendorTypeNumber();
+        result[4] = JDBCType.DATE.getVendorTypeNumber();
         return result;
     }
+
+    /**
+     *   Get sql parameter for update employee into the database.
+     */
     public Object[] getUpdateObjects(Employee employee) {
         Object[] result = new Object[5];
-        result[0] =  employee.getLogin();
-        result[1] =  employee.getName();
-        result[2] =  employee.getSalary();
-        result[3] =  getDate(employee.getStartDate());
-        result[4] =  employee.getId();
+        result[0] = employee.getLogin();
+        result[1] = employee.getName();
+        result[2] = employee.getSalary();
+        result[3] = getDate(employee.getStartDate());
+        result[4] = employee.getId();
         return result;
     }
 
+
+    /**
+     *   jdbc sql data type to update employee.
+     */
     public int[] getUpdateSQLType() {
         int[] result = new int[5];
-        result[0] =  JDBCType.VARCHAR.getVendorTypeNumber();
-        result[1] =  JDBCType.VARCHAR.getVendorTypeNumber();
-        result[2] =  JDBCType.DECIMAL.getVendorTypeNumber();
-        result[3] =  JDBCType.DATE.getVendorTypeNumber();
-        result[4] =  JDBCType.VARCHAR.getVendorTypeNumber();
+        result[0] = JDBCType.VARCHAR.getVendorTypeNumber();
+        result[1] = JDBCType.VARCHAR.getVendorTypeNumber();
+        result[2] = JDBCType.DECIMAL.getVendorTypeNumber();
+        result[3] = JDBCType.DATE.getVendorTypeNumber();
+        result[4] = JDBCType.VARCHAR.getVendorTypeNumber();
         return result;
     }
 
+    /**
+     *   sql result set to employee conversion.
+     */
     @Override
     public Employee mapRow(ResultSet rs, int rowNum) throws SQLException {
         Employee employee = new Employee();
@@ -72,6 +99,9 @@ public class EmployeeDto implements RowMapper<Employee> {
         return employee;
     }
 
+    /**
+     *   Employee list to json array conversion.
+     */
     public ArrayNode getArrayNode(List<Employee> employees) {
         JsonMapper mapper = new JsonMapper();
         ArrayNode arrayNode = mapper.createArrayNode();
@@ -79,6 +109,10 @@ public class EmployeeDto implements RowMapper<Employee> {
         return arrayNode;
     }
 
+
+    /**
+     *   Employee to json object conversion.
+     */
     public ObjectNode getObjectNode(Employee employee) {
         return getObjectNode(new JsonMapper(), employee);
     }
@@ -115,17 +149,20 @@ public class EmployeeDto implements RowMapper<Employee> {
             if(JsonNodeType.STRING.equals(value.getNodeType())) {
                 return (T)getLocalDate(value.asText());
             }
-        } else if(Boolean.class.equals(dType)) {
-            if(JsonNodeType.BOOLEAN.equals(value.getNodeType())) {
-                return (T)Boolean.valueOf(value.asBoolean());
+        } else if (Boolean.class.equals(dType)) {
+            if (JsonNodeType.BOOLEAN.equals(value.getNodeType())) {
+                return (T) Boolean.valueOf(value.asBoolean());
             }
-            return (T)Boolean.valueOf(false);
+            return (T) Boolean.valueOf(false);
         }
         return null;
     }
 
+    /**
+     * Get valid employee from CSV records.
+     */
     public Employee getValidEmployee(CSVRecord csvRecord) {
-        if(csvRecord.size() != 5) {
+        if (csvRecord.size() != 5) {
             throw new MessageException(HttpStatus.BAD_REQUEST, "Invalid CSV format to upload as employee.");
         }
         Employee employee = new Employee();
@@ -138,6 +175,9 @@ public class EmployeeDto implements RowMapper<Employee> {
         return employee;
     }
 
+    /**
+     * Get valid employee from JSON records.
+     */
     public Employee getValidEmployee(ObjectNode objNode) {
         Employee employee = new Employee();
         employee.setId(getTypeSafe(objNode.get("id"), String.class));
@@ -149,15 +189,18 @@ public class EmployeeDto implements RowMapper<Employee> {
         return employee;
     }
 
+    /**
+     * Validate employee before update to the database.
+     */
     public void validate(Employee employee) {
-        if(employee.getId() == null) {
+        if (employee.getId() == null) {
             throw new MessageException(HttpStatus.BAD_REQUEST, "Employee id should not be empty.");
         }
-        if(employee.getLogin() == null) {
+        if (employee.getLogin() == null) {
             throw new MessageException(HttpStatus.BAD_REQUEST, "Employee login should not be empty.");
         }
-        if(employee.getName() == null) {
-            throw new MessageException(HttpStatus.BAD_REQUEST,"Employee name should not be empty.");
+        if (employee.getName() == null) {
+            throw new MessageException(HttpStatus.BAD_REQUEST, "Employee name should not be empty.");
         }
         BigDecimal salary = employee.getSalary();
         if(0 <= BigDecimal.ZERO.compareTo(salary)) {

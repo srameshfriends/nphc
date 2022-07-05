@@ -2,6 +2,12 @@ package org.nphc.payroll.dto;
 
 import org.springframework.http.HttpStatus;
 
+
+/**
+ * Customized exception handle.
+ *
+ * @author Selvaraj Ramesh
+ */
 public class MessageException extends RuntimeException {
     private final HttpStatus status;
 

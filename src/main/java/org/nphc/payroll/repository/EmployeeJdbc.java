@@ -16,8 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+/**
+ * Jdbc template are used to communication layer with database to application service.
+ *
+ * @author Selvaraj Ramesh
+ */
 @Repository
 public class EmployeeJdbc {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeJdbc.class);
@@ -39,6 +47,9 @@ public class EmployeeJdbc {
         }
     }
 
+    /**
+     * find employee by ids.
+     */
     @Transactional(readOnly = true)
     public List<String> findIds(List<Employee> employeeList) {
         if (employeeList.isEmpty()) {
@@ -51,6 +62,9 @@ public class EmployeeJdbc {
         return jdbcTemplate.query(query, rowMapper, ids.toArray());
     }
 
+    /**
+     * To avoid employee id duplicate record exception, to check exits or not.
+     */
     @Transactional(readOnly = true)
     public boolean isIdExists(Employee employee) {
         String query = "SELECT COUNT(*) FROM employee WHERE id = ?1";
@@ -59,6 +73,9 @@ public class EmployeeJdbc {
         return integer != null && 0 < integer;
     }
 
+    /**
+     * To avoid employee login duplicate record exception, to check exits or not.
+     */
     @Transactional(readOnly = true)
     public boolean isLoginExits(Employee employee) {
         String query = "SELECT COUNT(*) FROM employee WHERE id != ?1 AND login = ?2";
@@ -67,6 +84,10 @@ public class EmployeeJdbc {
         return integer != null && 0 < integer;
     }
 
+    /**
+     * Search employee list with filter by salary range, order by id, login, salary, startDate
+     * Pagination with offset and limit
+     */
     @Transactional(readOnly = true)
     public List<Employee> search(BigDecimal minSalary, BigDecimal maxSalary, String orderBy, int limit, int offset,
                                  boolean isDesc) {
@@ -89,7 +110,7 @@ public class EmployeeJdbc {
             orderBy = "start_date";
         }
         builder.append(" ORDER BY ").append(orderBy);
-        if(isDesc) {
+        if (isDesc) {
             builder.append(" DESC");
         }
         if (0 < limit) {
@@ -98,15 +119,13 @@ public class EmployeeJdbc {
         if (0 < offset) {
             builder.append(" OFFSET  ").append(offset);
         }
-        PreparedStatementSetter statementSetter = ps -> {
-            parameterMap.forEach((integer, obj) -> {
-                try {
-                    ps.setObject(integer, obj);
-                } catch (SQLException ex) {
-                    throw new MessageException(ex.getMessage());
-                }
-            });
-        };
+        PreparedStatementSetter statementSetter = ps -> parameterMap.forEach((integer, obj) -> {
+            try {
+                ps.setObject(integer, obj);
+            } catch (SQLException ex) {
+                throw new MessageException(ex.getMessage());
+            }
+        });
         String suffix = builder.toString();
         if (builder.toString().startsWith(" AND")) {
             suffix = suffix.replaceFirst(" AND", " WHERE ");
@@ -114,6 +133,10 @@ public class EmployeeJdbc {
         return jdbcTemplate.query("SELECT id, login, name, salary, start_date FROM employee " + suffix, statementSetter, new EmployeeDto());
     }
 
+    /**
+     * Search employee list with filter by salary range, order by id, login, salary, startDate
+     * Pagination with offset and limit
+     */
     @Transactional(readOnly = true)
     public Employee findById(String id) {
         PreparedStatementSetter statementSetter = ps -> ps.setString(1, id);
@@ -122,11 +145,18 @@ public class EmployeeJdbc {
         return list.isEmpty() ? null : list.get(0);
     }
 
+    /**
+     * Delete employee by id
+     */
     public int deleteById(String id) {
         PreparedStatementSetter statementSetter = ps -> ps.setString(1, id);
         return jdbcTemplate.update("DELETE FROM employee WHERE id = ?1", statementSetter);
     }
 
+
+    /**
+     * Insert employees
+     */
     public void insert(List<Employee> employeeList) {
         EmployeeDto dto = new EmployeeDto();
         List<Object[]> parameters = new ArrayList<>();
@@ -135,6 +165,9 @@ public class EmployeeJdbc {
                 parameters, dto.getInsertSQLType());
     }
 
+    /**
+     * Update employees
+     */
     public void update(List<Employee> employeeList) {
         EmployeeDto dto = new EmployeeDto();
         List<Object[]> parameters = new ArrayList<>();

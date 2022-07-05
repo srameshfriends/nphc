@@ -13,6 +13,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Message exception advice is used by spring boot sequence.
+ *
+ * @author Selvaraj Ramesh
+ */
 @ControllerAdvice
 public class MessageExceptionAdvice extends ResponseEntityExceptionHandler {
 

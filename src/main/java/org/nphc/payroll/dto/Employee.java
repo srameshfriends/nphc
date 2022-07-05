@@ -5,7 +5,6 @@ import java.time.LocalDate;
 
 /**
  * Entity holding employee details represent to the sql table.
- * startDate format is “yyyy-mm-dd" or “dd-mmm-yy”
  *
  * @author Selvaraj Ramesh
  */
